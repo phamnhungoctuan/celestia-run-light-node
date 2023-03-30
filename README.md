@@ -1,0 +1,1 @@
+# celestia-run-light-node
