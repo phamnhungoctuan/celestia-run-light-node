@@ -1,0 +1,96 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Submit PFB transaction</h2>
+  <button id="generate">Generate New Values</button>
+  <form action="#" method="POST">
+    <div class="form-group">
+      <label for="email">Namespace ID:</label>
+      <input id="nID" type="text" class="form-control" name="nID" readonly>
+    </div>
+    <div class="form-group">
+      <label for="pwd">Hex-Encoded Data:</label>
+      <input type="text" id="hexdata" class="form-control" name="hex_data" readonly>
+    </div>
+    
+    <button id="submit" class="btn btn-default">Submit</button>
+    <div><pre class="rs"></pre></div>
+  </form>
+</div>
+
+</body>
+
+<script>
+
+$(document).ready(function() {
+  // Generate a random namespace ID
+  var nID = Math.random().toString(16).substr(2, 8);
+
+  // Generate a random hex-encoded message
+  var hexdata = '';
+  for (var i = 0; i < 27; i++) {
+    hexdata += Math.floor(Math.random() * 16).toString(16);
+  }
+
+  // Update the HTML with the generated values
+  $('#nID').text(nID);
+  $('#hexdata').text(hexdata);
+
+  // Trigger button click event
+  $('#generate').click(function() {
+    // Generate new values
+    var nID = '';
+    for (var i = 0; i < 8; i++) {
+        nID += Math.floor(Math.random() * 256).toString(16).padStart(2, '0');
+    }
+    var hexdata = '';
+    for (var i = 0; i < 28; i++) {
+        hexdata += Math.floor(Math.random() * 16).toString(18);
+    }
+
+    // Update the HTML with the new values
+    $('#nID').val(nID);
+    $('#hexdata').val(hexdata);
+  });
+
+  // Bind click event to button
+  $('#submit').click(function() {
+    $('#submit').attr("disabled", true);
+
+    event.preventDefault();
+    console.log("e");
+    // Send data to API endpoint
+    $.ajax({
+      url: '/submit_pfb',
+      type: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      data: JSON.stringify({namespace_id: $('#nID').val(), data: $('#hexdata').val(), gas_limit: 80000, fee: 2000}),
+      success: function(response) {
+        $('#submit').attr("disabled", false);
+        // Handle successful response
+        console.log(response);
+        $('.rs').text(JSON.stringify(response, undefined, 2));
+      },
+      error: function(xhr, status, error) {
+        // Handle error
+        console.log(error);
+      }
+    });
+  });
+
+});
+</script>
+</html>
